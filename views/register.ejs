@@ -1,0 +1,38 @@
+<%- include('partials/header.ejs'); -%>
+
+ 
+<div class="col-xl-10 col-xxl-8 py-3">
+  <h1>Register</h1>
+
+  <div class="row align-items-center g-lg-5 py-3">
+
+    <div class="col-lg-7 text-center text-lg-start">
+      <form class="monospace" action="/register" method="POST">
+        <div class="form-floating mb-3">
+          <input name="username" type="email" class="monospace form-control form-rounded" id="floatingInput" placeholder="name@example.com" fdprocessedid="72n5sc" autofocus="true" >
+          <label for="floatingInput">Email address</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input name="password" type="password" class="monospace form-control form-rounded" id="floatingPassword" placeholder="Password" fdprocessedid="j06ms2" >
+          <label for="floatingPassword">Password</label>
+        </div>
+       
+        <button class="form-rounded w-100 btn btn-lg btn-dark" type="submit" fdprocessedid="bmffdp" class="btn btn-dark">Sign Up</button>
+
+       
+      </form>
+    </div>
+    <div class="col-md-10 mx-auto col-lg-5">
+      <div class="card">
+        <div class="card-body">
+          <a class="btn btn-block" href="/auth/google" role="button">
+            <i class="fab fa-google"></i>
+            Sign Up with Google
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer.ejs'); -%>

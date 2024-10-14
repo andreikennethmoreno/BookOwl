@@ -1,0 +1,244 @@
+<%- include('partials/header.ejs'); -%>
+
+<style>
+  
+/* Flex container to align the sidebar and main content */
+.monospace {
+  font-family: monospace;
+  
+}
+
+.nav{
+  margin-top: 2.5rem;
+  margin-left: 1.5rem;
+
+}
+
+.nav-link {
+  font-family: monospace;
+  display: flex;
+  align-items: center;
+}
+
+.nav-link h3 {
+  margin-bottom: 0;
+  margin-right: 0.5rem; /* Add space between the text and SVG */
+}
+
+.nav-link svg {
+  vertical-align: middle; /* Ensures SVG aligns with text */
+}
+
+.text-completed {
+  color: #157c2d; /* Custom green */
+  border: solid 3px #157c2d;
+  border-radius: 25px;
+  padding: 2px 5px;
+  display: inline-block;
+}
+
+.text-reading {
+  color: #0056b3; /* Custom blue */
+  border: solid 3px #007bff;
+  border-radius: 25px;
+  padding: 2px 5px;
+  display: inline-block;
+}
+
+.text-on-hold {
+  color: #d39e00; /* Custom yellow */
+  border: solid 3px #ffc107;
+  border-radius: 25px;
+  padding: 2px 5px;
+  display: inline-block;
+}
+
+.text-dropped {
+  color: #c82333; /* Custom red */
+  border: solid 3px #dc3545;
+  border-radius: 25px;
+  padding: 2px 5px;
+  display: inline-block;
+}
+
+.form-control:focus {
+  border-color: initial; /* Reset border color */
+  outline: initial; /* Reset outline */
+  box-shadow: none; /* Remove any shadow effects */
+}
+
+.img-cover {
+  object-fit: cover;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Adjust shadow parameters as needed */
+}
+
+img {
+  height: 100%;
+  width: 400px;
+}
+
+
+</style>
+
+<div class="container mt-5">
+
+  <div class="row">
+    <!-- Left Column: Book Cover -->
+    <div class="col-md-4">
+      <img src="<%= thisBook.bookcoverurl %>" alt="Book Cover" class="img-cover">
+    </div>
+
+    <!-- Right Column: Book Details -->
+    <div class="col-md-7">
+
+      <h2><%= thisBook.booktitle %></h2>
+      <h4 style="font-weight: normal;"><%= thisBook.bookauthor %></h4>
+
+      <p class="monospace my-2">
+        Date Added: 
+        <% if (thisBook.dateadded) { %>
+          <%= new Date(thisBook.dateadded).toDateString() %>
+        <% } else { %>
+          Not available
+        <% } %>
+      </p>
+      
+      <p class="monospace">
+        Date Reviewed: 
+        <% if (thisBook.datereviewed) { %>
+          <%= new Date(thisBook.datereviewed).toDateString() %>
+        <% } else { %>
+          Not available
+        <% } %>
+      </p>
+      
+      
+
+
+      
+      <div class="my-2 status-container d-flex align-items-center">
+        <!-- Status Section -->
+         
+        <p id="statusText<%= thisBook.book_id %>" class="mb-0 me-2
+          <% if (thisBook.status === 'Completed') { %> text-completed 
+            <% } else if (thisBook.status === 'Reading') { %> text-reading 
+            <% } else if (thisBook.status === 'On Hold') { %> text-on-hold 
+            <% } else if (thisBook.status === 'Dropped') { %> text-dropped 
+            <% } %>">
+            <%= thisBook.status %>
+          
+        </p>
+        
+        <form class="status d-flex align-items-center" action="/editStatus" method="post">
+          <input type="hidden" name="updatedStatusId" value="<%= thisBook.book_id %>">
+          <select id="statusInput<%= thisBook.book_id %>" name="updatedStatusTitle" autocomplete="off" hidden>
+            <option value="Reading" <%= thisBook.status === 'Reading' ? 'selected' : '' %>>Reading</option>
+            <option value="Completed" <%= thisBook.status === 'Completed' ? 'selected' : '' %>>Completed</option>
+            <option value="On Hold" <%= thisBook.status === 'On Hold' ? 'selected' : '' %>>On Hold</option>
+            <option value="Dropped" <%= thisBook.status === 'Dropped' ? 'selected' : '' %>>Dropped</option>
+          </select>
+          <button id="statusDone<%= thisBook.book_id %>" class="edit btn" type="submit" hidden>
+            <svg height="20px" width="20px" fill="#000000" viewBox="0 0 24 24" id="check-mark-square-2" data-name="Flat Line" xmlns="http://www.w3.org/2000/svg" class="icon flat-line"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><polyline id="primary" points="21 5 12 14 8 10" style="fill: none; stroke: #000000; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></polyline><path id="primary-2" data-name="primary" d="M21,11v9a1,1,0,0,1-1,1H4a1,1,0,0,1-1-1V4A1,1,0,0,1,4,3H16" style="fill: none; stroke: #000000; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path></g></svg>          </button>
+        </form>
+      
+        <button id="statusEdit<%= thisBook.book_id %>" class="edit btn" onclick="handleStatusEdit('<%= thisBook.book_id %>')">
+          <svg height="20px" width="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M21.2799 6.40005L11.7399 15.94C10.7899 16.89 7.96987 17.33 7.33987 16.7C6.70987 16.07 7.13987 13.25 8.08987 12.3L17.6399 2.75002C17.8754 2.49308 18.1605 2.28654 18.4781 2.14284C18.7956 1.99914 19.139 1.92124 19.4875 1.9139C19.8359 1.90657 20.1823 1.96991 20.5056 2.10012C20.8289 2.23033 21.1225 2.42473 21.3686 2.67153C21.6147 2.91833 21.8083 3.21243 21.9376 3.53609C22.0669 3.85976 22.1294 4.20626 22.1211 4.55471C22.1128 4.90316 22.0339 5.24635 21.8894 5.5635C21.7448 5.88065 21.5375 6.16524 21.2799 6.40005V6.40005Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M11 4H6C4.93913 4 3.92178 4.42142 3.17163 5.17157C2.42149 5.92172 2 6.93913 2 8V18C2 19.0609 2.42149 20.0783 3.17163 20.8284C3.92178 21.5786 4.93913 22 6 22H17C19.21 22 20 20.2 20 18V13" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+        </button>
+      </div>
+      
+
+      <div class="my-2 rating-container d-flex align-items-center">
+        <!-- Rating Section -->
+        <p id="ratingText<%= thisBook.book_id %>" class="mb-0 me-2">
+          <% if (thisBook.rating !== null) { %>
+            <% 
+              let fullStars = Math.floor(thisBook.rating);
+              let halfStar = thisBook.rating % 1 !== 0;
+            %>
+            <% for(let i = 0; i < fullStars; i++) { %>
+              <svg height="20px" width="20px" version="1.0" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 64 64" enable-background="new 0 0 64 64" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <path fill="#394240" d="M49.302,63.999c-0.664,0-1.332-0.164-1.938-0.5l-15.365-8.498l-15.366,8.498 c-1.344,0.742-2.993,0.652-4.243-0.23c-1.25-0.883-1.891-2.403-1.645-3.915l2.981-18.261L1.138,28.185 c-1.047-1.074-1.406-2.641-0.93-4.063c0.477-1.422,1.707-2.457,3.188-2.684l17.237-2.633L28.376,2.31 c0.661-1.407,2.071-2.301,3.622-2.301s2.961,0.895,3.622,2.301l7.743,16.495l17.237,2.633c1.48,0.227,2.711,1.262,3.188,2.684 c0.477,1.423,0.117,2.989-0.93,4.063L50.271,41.093l2.98,18.261c0.246,1.512-0.395,3.032-1.645,3.915 C50.919,63.753,50.11,63.999,49.302,63.999z M31.998,46.43c0.668,0,1.332,0.168,1.938,0.5l10.092,5.579l-1.98-12.119 c-0.203-1.254,0.199-2.527,1.086-3.438l8.563-8.779l-11.654-1.781c-1.316-0.199-2.449-1.043-3.016-2.255l-5.028-10.712 L26.97,24.137c-0.566,1.212-1.699,2.056-3.016,2.255L12.3,28.173l8.563,8.779c0.887,0.91,1.289,2.184,1.086,3.438l-1.98,12.119 l10.092-5.579C30.666,46.598,31.33,46.43,31.998,46.43z"></path> <path fill="#F9EBB2" d="M31.998,46.43c0.668,0,1.332,0.168,1.938,0.5l10.092,5.579l-1.98-12.119 c-0.203-1.254,0.199-2.527,1.086-3.438l8.563-8.779l-11.654-1.781c-1.316-0.199-2.449-1.043-3.016-2.255l-5.028-10.712 L26.97,24.137c-0.566,1.212-1.699,2.056-3.016,2.255L12.3,28.173l8.563,8.779c0.887,0.91,1.289,2.184,1.086,3.438l-1.98,12.119 l10.092-5.579C30.666,46.598,31.33,46.43,31.998,46.43z"></path> </g> </g></svg>
+            <% } %>
+            <% if(halfStar) { %>
+              ☆
+            <% } %>
+          <% } else { %>
+            Not rated yet
+          <% } %>
+        </p>
+        
+        <form class="rating d-flex align-items-center" action="/editRating" method="post">
+          <input type="hidden" name="updatedRatingId" value="<%= thisBook.book_id %>">
+          <div id="ratingInput<%= thisBook.book_id %>" hidden>
+            <% 
+              let displayRating = (thisBook.rating !== null) ? Math.floor(thisBook.rating) : 4; 
+            %>
+            <% for (let i = 1; i <= 5; i++) { %>
+              <input type="radio" id="star<%= i %>" name="updatedRating" value="<%= i %>" <% if (i === displayRating) { %> checked <% } %>>
+              <label for="star<%= i %>">
+                <svg height="20px" width="20px" version="1.0" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 64 64" enable-background="new 0 0 64 64" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <path fill="#394240" d="M49.302,63.999c-0.664,0-1.332-0.164-1.938-0.5l-15.365-8.498l-15.366,8.498 c-1.344,0.742-2.993,0.652-4.243-0.23c-1.25-0.883-1.891-2.403-1.645-3.915l2.981-18.261L1.138,28.185 c-1.047-1.074-1.406-2.641-0.93-4.063c0.477-1.422,1.707-2.457,3.188-2.684l17.237-2.633L28.376,2.31 c0.661-1.407,2.071-2.301,3.622-2.301s2.961,0.895,3.622,2.301l7.743,16.495l17.237,2.633c1.48,0.227,2.711,1.262,3.188,2.684 c0.477,1.423,0.117,2.989-0.93,4.063L50.271,41.093l2.98,18.261c0.246,1.512-0.395,3.032-1.645,3.915 C50.919,63.753,50.11,63.999,49.302,63.999z M31.998,46.43c0.668,0,1.332,0.168,1.938,0.5l10.092,5.579l-1.98-12.119 c-0.203-1.254,0.199-2.527,1.086-3.438l8.563-8.779l-11.654-1.781c-1.316-0.199-2.449-1.043-3.016-2.255l-5.028-10.712 L26.97,24.137c-0.566,1.212-1.699,2.056-3.016,2.255L12.3,28.173l8.563,8.779c0.887,0.91,1.289,2.184,1.086,3.438l-1.98,12.119 l10.092-5.579C30.666,46.598,31.33,46.43,31.998,46.43z"></path> <path fill="#F9EBB2" d="M31.998,46.43c0.668,0,1.332,0.168,1.938,0.5l10.092,5.579l-1.98-12.119 c-0.203-1.254,0.199-2.527,1.086-3.438l8.563-8.779l-11.654-1.781c-1.316-0.199-2.449-1.043-3.016-2.255l-5.028-10.712 L26.97,24.137c-0.566,1.212-1.699,2.056-3.016,2.255L12.3,28.173l8.563,8.779c0.887,0.91,1.289,2.184,1.086,3.438l-1.98,12.119 l10.092-5.579C30.666,46.598,31.33,46.43,31.998,46.43z"></path> </g> </g></svg>
+
+              </label>
+            <% } %>
+          </div>
+          <button id="ratingDone<%= thisBook.book_id %>" class="edit btn" type="submit" hidden>
+            <svg height="20px" width="20px" fill="#000000" viewBox="0 0 24 24" id="check-mark-square-2" data-name="Flat Line" xmlns="http://www.w3.org/2000/svg" class="icon flat-line"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><polyline id="primary" points="21 5 12 14 8 10" style="fill: none; stroke: #000000; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></polyline><path id="primary-2" data-name="primary" d="M21,11v9a1,1,0,0,1-1,1H4a1,1,0,0,1-1-1V4A1,1,0,0,1,4,3H16" style="fill: none; stroke: #000000; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path></g></svg>          </button>
+          </button>
+        </form>
+      
+        <button id="ratingEdit<%= thisBook.book_id %>" class="edit btn" onclick="handleRatingEdit('<%= thisBook.book_id %>')">
+          <svg height="20px" width="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M21.2799 6.40005L11.7399 15.94C10.7899 16.89 7.96987 17.33 7.33987 16.7C6.70987 16.07 7.13987 13.25 8.08987 12.3L17.6399 2.75002C17.8754 2.49308 18.1605 2.28654 18.4781 2.14284C18.7956 1.99914 19.139 1.92124 19.4875 1.9139C19.8359 1.90657 20.1823 1.96991 20.5056 2.10012C20.8289 2.23033 21.1225 2.42473 21.3686 2.67153C21.6147 2.91833 21.8083 3.21243 21.9376 3.53609C22.0669 3.85976 22.1294 4.20626 22.1211 4.55471C22.1128 4.90316 22.0339 5.24635 21.8894 5.5635C21.7448 5.88065 21.5375 6.16524 21.2799 6.40005V6.40005Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M11 4H6C4.93913 4 3.92178 4.42142 3.17163 5.17157C2.42149 5.92172 2 6.93913 2 8V18C2 19.0609 2.42149 20.0783 3.17163 20.8284C3.92178 21.5786 4.93913 22 6 22H17C19.21 22 20 20.2 20 18V13" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+        </button>
+      </div>
+
+
+      
+      <div class="my-2 review-container d-flex align-items-center">
+        <!-- Review Section -->
+        <p id="review<%= thisBook.book_id %>" class="mb-0 me-2"><b class="monospace">Review:</b> <%= thisBook.review %></p>
+        
+        <form class="edit d-flex align-items-center" action="/editReview" method="post">
+          <input type="hidden" name="updatedReviewId" value="<%= thisBook.book_id %>">
+          <textarea class="form-control" rows="20" cols="100" id="reviewInput<%= thisBook.book_id %>" name="updatedReviewTitle" autocomplete="off" hidden><%= thisBook.review %></textarea>
+          <button id="reviewDone<%= thisBook.book_id %>" class="edit btn" type="submit" hidden>
+            <svg height="20px" width="20px" fill="#000000" viewBox="0 0 24 24" id="check-mark-square-2" data-name="Flat Line" xmlns="http://www.w3.org/2000/svg" class="icon flat-line"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><polyline id="primary" points="21 5 12 14 8 10" style="fill: none; stroke: #000000; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></polyline><path id="primary-2" data-name="primary" d="M21,11v9a1,1,0,0,1-1,1H4a1,1,0,0,1-1-1V4A1,1,0,0,1,4,3H16" style="fill: none; stroke: #000000; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path></g></svg>          </button>
+          </button>
+        </form>
+        
+        <button id="reviewEdit<%= thisBook.book_id %>" class="edit btn" onclick="handleReviewEdit('<%= thisBook.book_id %>')">
+          <svg height="20px" width="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M21.2799 6.40005L11.7399 15.94C10.7899 16.89 7.96987 17.33 7.33987 16.7C6.70987 16.07 7.13987 13.25 8.08987 12.3L17.6399 2.75002C17.8754 2.49308 18.1605 2.28654 18.4781 2.14284C18.7956 1.99914 19.139 1.92124 19.4875 1.9139C19.8359 1.90657 20.1823 1.96991 20.5056 2.10012C20.8289 2.23033 21.1225 2.42473 21.3686 2.67153C21.6147 2.91833 21.8083 3.21243 21.9376 3.53609C22.0669 3.85976 22.1294 4.20626 22.1211 4.55471C22.1128 4.90316 22.0339 5.24635 21.8894 5.5635C21.7448 5.88065 21.5375 6.16524 21.2799 6.40005V6.40005Z" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> <path d="M11 4H6C4.93913 4 3.92178 4.42142 3.17163 5.17157C2.42149 5.92172 2 6.93913 2 8V18C2 19.0609 2.42149 20.0783 3.17163 20.8284C3.92178 21.5786 4.93913 22 6 22H17C19.21 22 20 20.2 20 18V13" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>
+        </button>
+      </div>
+      
+
+      
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+  function handleReviewEdit(id) {
+    document.getElementById("review" + id).setAttribute("hidden", true);
+    document.getElementById("reviewEdit" + id).setAttribute("hidden", true);
+    document.getElementById("reviewDone" + id).removeAttribute("hidden");
+    document.getElementById("reviewInput" + id).removeAttribute("hidden");
+  }
+
+  function handleStatusEdit(id) {
+    document.getElementById("statusText" + id).setAttribute("hidden", true);
+    document.getElementById("statusEdit" + id).setAttribute("hidden", true);
+    document.getElementById("statusDone" + id).removeAttribute("hidden");
+    document.getElementById("statusInput" + id).removeAttribute("hidden");
+  }
+
+  function handleRatingEdit(id) {
+    document.getElementById("ratingText" + id).setAttribute("hidden", true);
+    document.getElementById("ratingEdit" + id).setAttribute("hidden", true);
+    document.getElementById("ratingDone" + id).removeAttribute("hidden");
+    document.getElementById("ratingInput" + id).removeAttribute("hidden");
+  }
+</script>
+
+
+<%- include('partials/footer.ejs'); -%>
+

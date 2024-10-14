@@ -1,0 +1,68 @@
+<%- include('partials/header.ejs'); -%>
+
+<h2 class="monospace mt-5 mb-4"><b>Book Search</b></h2>
+
+<form action="/searchBooks" method="POST">
+  <div class="input-group">
+    <input type="text" name="searchBook" autocomplete="off" class="monospace form-control form-rounded" placeholder="What book are you looking for?" autofocus="true" />
+    <button type="submit" class="search-btn btn btn-dark"><b class="monospace">Search</b></button>
+  </div>
+</form>
+
+<% if (locals.searchTerm) { %>
+    <p class="mt-3 mb-3 monospace">"<%= searchTerm %>" search results</p>
+        <div class="row">
+            <% data.forEach(book => { %>
+                <div class="col-md-2 mb-4">
+                    <div class="card card-fixed-height">
+                        <!-- Display book cover -->
+                        <% if (book.cover) { %>
+                            <img src="<%= book.cover %>" alt="<%= book.title %>" class="img-fluid mx-auto d-block">
+                        <% } else { %>
+                            <img src="https://via.placeholder.com/150x225?text=No+Cover" class="card-img-top img-fluid" alt="<%= book.title %>">
+                        <% } %>
+                        
+                        <!-- Display book title and author -->
+                        <div class="card-body">
+                            <p class="card-title"><b><%= book.title %></b></p>
+                            <p class="card-text">
+                                <%= book.authors ? book.authors.join(', ') : 'Unknown' %>
+                            </p>
+                        </div>
+
+                        <!-- Add Book Form -->
+                        <form id="addBookForm-<%= book.id %>" method="POST" action="/addBook">
+                            <input type="hidden" name="user_id" value="<%= user %>" >
+                            <input type="hidden" name="title" value="<%= book.title %>">
+                            <input type="hidden" name="url" value="<%= book.cover %>">
+                            <input type="hidden" name="author" value="<%= book.authors ? book.authors.join(', ') : 'Unknown' %>">
+                            <div class="button-container">
+                            <button type="button" class="add m-3 btn btn-dark" onclick="submitForm('<%= book.id %>')">
+                                <svg height="20px" width="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                <g id="SVGRepo_iconCarrier">
+                                    <path d="M4 12H20M12 4V20" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </g>
+                                </svg>
+                            </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+<% } else { %>
+    <p class="mt-3 mb-3 monospace">What Are you look for?</p>
+    
+
+<% } %>
+
+<script>
+  function submitForm(bookId) {
+    const form = document.getElementById(`addBookForm-${bookId}`);
+    form.submit();
+  }
+</script>
+
+<%- include('partials/footer.ejs'); -%>

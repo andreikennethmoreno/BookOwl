@@ -1,0 +1,203 @@
+<%- include('partials/header.ejs'); -%>
+
+<div class="container">
+  <h2 class="monospace mt-5 mb-4"><b>My Books</b></h2>
+
+  <div class="dropdown my-4  d-inline-block">
+    <button class=" form-rounded  btn btn-secondary dropdown-toggle monospace" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+      <% if (typeof category !== 'undefined' && category) { %>
+        <%= category %>
+      <% } else { %>
+        Sort By
+      <% } %>
+      
+      </button>
+    <ul class="dropdown-menu monospace">
+      <li>
+        <div >
+          <form class="" method="post" action="/sort">
+            <input class="form-control me-2" type="text" placeholder="Search Menu" name="category" aria-label="Search" hidden value="booktitle">
+            <button id="buttonbooktitle" class="btn dropdown-item" type="submit">Book Title</button>
+          </form>
+        </div>
+      </li>
+
+      <li>
+        <div >
+          <form class="" method="post" action="/sort">
+            <input class="form-control me-2" type="text" placeholder="Search Menu" name="category" aria-label="Search" hidden value="rating">
+            <button class="btn dropdown-item" type="submit">Rating</button>
+          </form>
+        </div>
+      </li>
+
+      <li>
+        <div >
+          <form class="" method="post" action="/sort">
+            <input class="form-control me-2" type="text" placeholder="Search Menu" name="category" aria-label="Search" hidden value="dateadded">
+            <button class="btn dropdown-item" type="submit">Date Added</button>
+          </form>
+        </div>
+      </li>
+
+      <li>
+        <div >
+          <form class="" method="post" action="/sort">
+            <input class="form-control me-2" type="text" placeholder="Search Menu" name="category" aria-label="Search" hidden value="datereviewed">
+            <button class="btn dropdown-item" type="submit">Date Reviewed</button>
+          </form>
+        </div>
+      </li>
+
+      <li>
+        <div >
+          <form class="" method="post" action="/sort">
+            <input class="form-control me-2" type="text" placeholder="Search Menu" name="category" aria-label="Search" hidden value="bookauthor">
+            <button class="btn dropdown-item" type="submit">Book Author</button>
+          </form>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+
+  <div class="dropdown my-4  d-inline-block">
+    <% if (typeof status !== 'undefined' && status) { %>
+      <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="form-rounded btn dropdown-toggle monospace 
+        <% if (status === 'Completed') { %> 
+            text-completed
+        <% } else if (status === 'Reading') { %> 
+            text-reading
+        <% } else if (status === 'On Hold') { %> 
+            text-on-hold
+        <% } else if (status === 'Dropped') { %> 
+            text-dropped
+        <% } else { %> 
+            
+        <% } %>">
+        
+        <%= status %>
+      </button>
+    <% } else { %>
+      <!-- Optionally render a placeholder or nothing here if status is undefined -->
+      <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="form-rounded btn dropdown-toggle monospace text-noStatus">
+        Status
+      </button>
+    <% } %>
+    
+    
+    <ul class="dropdown-menu monospace">
+      <li>
+        <div >
+          <form class="" method="post" action="/sort">
+            <input class="form-control me-2" type="text" placeholder="Search Menu" name="sortStatus" aria-label="Search" hidden value="Completed">
+            <button id="buttonCompleted" class="btn dropdown-item" type="submit">Completed</button>
+          </form>
+        </div>
+      </li>
+
+      <li>
+        <div >
+          <form class="" method="post" action="/sort">
+            <input class="form-control me-2" type="text" placeholder="Search Menu" name="sortStatus" aria-label="Search" hidden value="On Hold">
+            <button class="btn dropdown-item" type="submit">On Hold</button>
+          </form>
+        </div>
+      </li>
+
+      <li>
+        <div >
+          <form class="" method="post" action="/sort">
+            <input class="form-control me-2" type="text" placeholder="Search Menu" name="sortStatus" aria-label="Search" hidden value="Reading">
+            <button class="btn dropdown-item" type="submit">Reading</button>
+          </form>
+        </div>
+      </li>
+
+      <li>
+        <div >
+          <form class="" method="post" action="/sort">
+            <input class="form-control me-2" type="text" placeholder="Search Menu" name="sortStatus" aria-label="Search" hidden value="Dropped">
+            <button class="btn dropdown-item" type="submit">Dropped</button>
+          </form>
+        </div>
+      </li>
+
+    </ul>
+  </div>
+
+  <div class="container-fluid" style="margin-left: -0.7rem;">
+    <div class="row">
+      <% listBooks.forEach(function(book) { %>
+        <div class="col-md-2 mb-4">
+          <a href="/thisBook/<%= encodeURIComponent(book.id) %>" style="text-decoration: none;">
+            <div class="card card-fixed-height">
+              <img src="<%= book.bookcoverurl %>" alt="<%= book.booktitle %>" class="img-mybook">
+              <div class="card-hover  card-body ">
+                <p class="card-title"><b><%= book.booktitle %></b></p>
+                <p class="card-text"><%= book.bookauthor %></p>
+                <div class="mt-auto">
+                  <p class="card-text">
+                    <% if (book.rating !== null) { %>
+                      <% 
+                        let fullStars = Math.floor(book.rating);
+                        let halfStar = book.rating % 1 !== 0;
+                      %>
+                      <% for(let i = 0; i < fullStars; i++) { %>
+                        <svg height="20px" width="20px" version="1.0" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 64 64" enable-background="new 0 0 64 64" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <path fill="#394240" d="M49.302,63.999c-0.664,0-1.332-0.164-1.938-0.5l-15.365-8.498l-15.366,8.498 c-1.344,0.742-2.993,0.652-4.243-0.23c-1.25-0.883-1.891-2.403-1.645-3.915l2.981-18.261L1.138,28.185 c-1.047-1.074-1.406-2.641-0.93-4.063c0.477-1.422,1.707-2.457,3.188-2.684l17.237-2.633L28.376,2.31 c0.661-1.407,2.071-2.301,3.622-2.301s2.961,0.895,3.622,2.301l7.743,16.495l17.237,2.633c1.48,0.227,2.711,1.262,3.188,2.684 c0.477,1.423,0.117,2.989-0.93,4.063L50.271,41.093l2.98,18.261c0.246,1.512-0.395,3.032-1.645,3.915 C50.919,63.753,50.11,63.999,49.302,63.999z M31.998,46.43c0.668,0,1.332,0.168,1.938,0.5l10.092,5.579l-1.98-12.119 c-0.203-1.254,0.199-2.527,1.086-3.438l8.563-8.779l-11.654-1.781c-1.316-0.199-2.449-1.043-3.016-2.255l-5.028-10.712 L26.97,24.137c-0.566,1.212-1.699,2.056-3.016,2.255L12.3,28.173l8.563,8.779c0.887,0.91,1.289,2.184,1.086,3.438l-1.98,12.119 l10.092-5.579C30.666,46.598,31.33,46.43,31.998,46.43z"></path> <path fill="#F9EBB2" d="M31.998,46.43c0.668,0,1.332,0.168,1.938,0.5l10.092,5.579l-1.98-12.119 c-0.203-1.254,0.199-2.527,1.086-3.438l8.563-8.779l-11.654-1.781c-1.316-0.199-2.449-1.043-3.016-2.255l-5.028-10.712 L26.97,24.137c-0.566,1.212-1.699,2.056-3.016,2.255L12.3,28.173l8.563,8.779c0.887,0.91,1.289,2.184,1.086,3.438l-1.98,12.119 l10.092-5.579C30.666,46.598,31.33,46.43,31.998,46.43z"></path> </g> </g></svg>
+                      <% } %>
+                      <% if(halfStar) { %>
+                          ☆
+                      <% } %>
+                    <% } else { %>
+                      Not rated yet
+                    <% } %>
+                  </p>
+                  
+                  <div class="flex-container">
+                    <b>
+                      <p class="card-text 
+                        <% if (book.status === 'Completed') { %> text-completed 
+                        <% } else if (book.status === 'Reading') { %> text-reading 
+                        <% } else if (book.status === 'On Hold') { %> text-on-hold 
+                        <% } else if (book.status === 'Dropped') { %> text-dropped 
+                        <% } %>">
+                        <%= book.status %>
+                      </p>
+                    </b>
+
+                    <style>
+                      .btn-outline-danger {
+                        color: #dc3545; /* Bootstrap's danger color */
+                      }
+                      .btn-outline-danger svg {
+                        height: 20px;
+                        stroke: currentColor; /* Use the button's text color for the SVG stroke */
+                      }
+                    </style>
+                  
+                    <form action="/deleteThisBook/<%= encodeURIComponent(book.id) %>" method="post">
+                      <button type="submit" class="btn btn-outline-danger">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M18 6L17.1991 18.0129C17.129 19.065 17.0939 19.5911 16.8667 19.99C16.6666 20.3412 16.3648 20.6235 16.0011 20.7998C15.588 21 15.0607 21 14.0062 21H9.99377C8.93927 21 8.41202 21 7.99889 20.7998C7.63517 20.6235 7.33339 20.3412 7.13332 19.99C6.90607 19.5911 6.871 19.065 6.80086 18.0129L6 6M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6M14 10V17M10 10V17" />
+                        </svg>
+                      </button>
+                    </form>
+                  </div>
+                  
+                    
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+  
+  
+
+  
+</div>
+
+<%- include('partials/footer.ejs'); -%>
